@@ -556,20 +556,9 @@ pub const Bundler = struct {
             else => {},
         }
 
-        if (this.env.get("DO_NOT_TRACK")) |dnt| {
-            // https://do-not-track.dev/
-            if (strings.eqlComptime(dnt, "1")) {
-                Analytics.disabled = true;
-            }
-        }
-
-        Analytics.is_ci = Analytics.is_ci or this.env.isCI();
-
         if (strings.eqlComptime(this.env.get("BUN_DISABLE_TRANSPILER") orelse "0", "1")) {
             this.options.disable_transpilation = true;
         }
-
-        Analytics.disabled = Analytics.disabled or this.env.get("HYPERFINE_RANDOMIZED_ENVIRONMENT_OFFSET") != null;
     }
 
     // This must be run after a framework is configured, if a framework is enabled
@@ -1608,7 +1597,7 @@ pub const Bundler = struct {
             },
             // TODO: use lazy export AST
             .text => {
-                const expr = js_ast.Expr.init(js_ast.E.String, js_ast.E.String{
+                const expr = js_ast.Expr.init(js_ast.E.UTF8String, js_ast.E.UTF8String{
                     .data = source.contents,
                 }, logger.Loc.Empty);
                 const stmt = js_ast.Stmt.alloc(js_ast.S.ExportDefault, js_ast.S.ExportDefault{
